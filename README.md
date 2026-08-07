@@ -92,6 +92,16 @@ KEG currently has no runtime dependencies:
 python -m pip install .
 ```
 
+## Example
+
+The bouncing-balls example uses Kivy to exercise a small position and velocity
+system in a real update loop:
+
+```console
+python -m pip install -e '.[examples]'
+python examples/bouncing_balls/main.py
+```
+
 ## License
 
 KEG is distributed under the MIT license.

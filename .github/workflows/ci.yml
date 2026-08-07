@@ -39,7 +39,7 @@ jobs:
         run: mypy
 
       - name: Run Ruff
-        run: ruff check keg tests
+        run: ruff check keg tests examples
 
   package:
     name: Build package

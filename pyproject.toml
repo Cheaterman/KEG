@@ -10,6 +10,9 @@ authors = [
 license = 'MIT'
 license-files = ['LICENSE']
 
+[project.optional-dependencies]
+examples = ['Kivy']
+
 [build-system]
 requires = ['setuptools >= 77.0.3']
 build-backend = 'setuptools.build_meta'
