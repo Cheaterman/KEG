@@ -89,7 +89,7 @@ pending structural work can be committed. Do not rely on garbage collection.
 KEG currently has no runtime dependencies:
 
 ```console
-python -m pip install .
+python -m pip install keg-engine
 ```
 
 ## Example
@@ -98,6 +98,8 @@ The bouncing-balls example uses Kivy to exercise a small position and velocity
 system in a real update loop:
 
 ```console
+git clone https://github.com/Cheaterman/KEG.git
+cd KEG
 python -m pip install -e '.[examples]'
 python examples/bouncing_balls/main.py
 ```

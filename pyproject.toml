@@ -10,6 +10,11 @@ authors = [
 license = 'MIT'
 license-files = ['LICENSE']
 
+[project.urls]
+Homepage = 'https://github.com/Cheaterman/KEG'
+Repository = 'https://github.com/Cheaterman/KEG'
+Issues = 'https://github.com/Cheaterman/KEG/issues'
+
 [project.optional-dependencies]
 examples = ['Kivy']
 
