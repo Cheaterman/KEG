@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.12'
+          - '3.13'
+          - '3.14'
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install check dependencies
+        run: pip install mypy pytest pytest-cov ruff
+
+      - name: Run tests
+        run: pytest
+
+      - name: Run mypy
+        run: mypy
+
+      - name: Run Ruff
+        run: ruff check keg tests
+
+  package:
+    name: Build package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install build frontend
+        run: pip install build
+
+      - name: Build distributions
+        run: python -m build
+
+      - name: Install wheel
+        run: pip install --force-reinstall dist/*.whl
+
+      - name: Smoke-test installed wheel
+        working-directory: /tmp
+        run: >
+          python -c
+          "from keg import World;
+          world = World();
+          assert world.spawn() == 1"
