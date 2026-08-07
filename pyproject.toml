@@ -2,7 +2,7 @@
 name = 'keg-engine'
 description = 'KEG is an Engine for Games'
 readme = 'README.md'
-version = '0.1'
+version = '0.1.1'
 requires-python = '>= 3.12'
 authors = [
     {name='Guillaume BRUN', email='the.cheaterman@gmail.com'}
