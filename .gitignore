@@ -1,0 +1,12 @@
+# vim <3
+.*.sw*
+
+.coverage
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+env/
+*.egg-info/
+build/
+dist/
