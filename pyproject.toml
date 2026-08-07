@@ -1,5 +1,5 @@
 [project]
-name = 'KEG'
+name = 'keg-engine'
 description = 'KEG is an Engine for Games'
 readme = 'README.md'
 version = '0.1'
