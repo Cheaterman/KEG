@@ -27,6 +27,11 @@ python_version = '3.12'
 strict = true
 files = ['keg', 'tests']
 
+[tool.pyright]
+pythonVersion = '3.12'
+typeCheckingMode = 'strict'
+include = ['keg', 'tests']
+
 [tool.pytest.ini_options]
 norecursedirs = ['.*', 'env']
 addopts = [

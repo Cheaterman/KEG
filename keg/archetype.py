@@ -96,7 +96,7 @@ class Archetype:
     ) -> RowIndex:
         signature = set(components)
 
-        if signature != self.signature:
+        if signature != self.signature:  # pyright: ignore[reportUnnecessaryComparison]
             missing = self.signature - signature
             unexpected = signature - self.signature
             raise InvalidSignature(missing, unexpected)
