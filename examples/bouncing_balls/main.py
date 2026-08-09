@@ -1,3 +1,11 @@
+# Kivy does not expose PEP 561 type information yet.
+# mypy: allow_subclassing_any = True
+# pyright: reportMissingImports=false
+# pyright: reportUnknownArgumentType=false
+# pyright: reportUnknownMemberType=false
+# pyright: reportUnknownVariableType=false
+# pyright: reportUntypedBaseClass=false
+
 from dataclasses import dataclass
 from math import cos, sin, tau
 from random import uniform

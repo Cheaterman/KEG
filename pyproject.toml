@@ -25,12 +25,16 @@ build-backend = 'setuptools.build_meta'
 [tool.mypy]
 python_version = '3.12'
 strict = true
-files = ['keg', 'tests']
+files = ['keg', 'tests', 'examples']
+
+[[tool.mypy.overrides]]
+module = ['kivy', 'kivy.*']
+ignore_missing_imports = true
 
 [tool.pyright]
 pythonVersion = '3.12'
 typeCheckingMode = 'strict'
-include = ['keg', 'tests']
+include = ['keg', 'tests', 'examples']
 
 [tool.pytest.ini_options]
 norecursedirs = ['.*', 'env']
