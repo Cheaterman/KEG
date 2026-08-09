@@ -6,9 +6,7 @@ from keg.world import World
 from tests.components import Health, Position, Velocity
 
 
-def test_spawn_assigns_monotonic_entity_ids() -> None:
-    world = World()
-
+def test_spawn_assigns_monotonic_entity_ids(world: World) -> None:
     empty_entity = world.spawn()
     positioned_entity = world.spawn(Position(10))
 
@@ -20,9 +18,9 @@ def test_spawn_assigns_monotonic_entity_ids() -> None:
         world.get_component(empty_entity, Position)
 
 
-def test_duplicate_spawn_is_rejected_without_allocating_an_id() -> None:
-    world = World()
-
+def test_duplicate_spawn_is_rejected_without_allocating_an_id(
+    world: World,
+) -> None:
     with pytest.raises(DuplicateComponent) as caught:
         world.spawn(Position(10), Position(20))
 
@@ -30,8 +28,34 @@ def test_duplicate_spawn_is_rejected_without_allocating_an_id() -> None:
     assert world.spawn(Position(30)) == EntityId(1)
 
 
-def test_despawn_repairs_the_swap_moved_entity_location() -> None:
-    world = World()
+def test_register_column_type_is_used_for_new_archetypes(
+    world: World,
+) -> None:
+    class PositionColumn(list[Position]):
+        pass
+
+    world.register_column_type(Position, PositionColumn)
+    position_only = world.spawn(Position(10))
+    positioned_velocity = world.spawn(Position(20), Velocity(30))
+
+    [
+        (position_only_entities, position_only_positions),
+        (positioned_velocity_entities, positioned_velocity_positions),
+    ] = world.query(Position)
+    assert position_only_entities == [position_only]
+    assert isinstance(position_only_positions, PositionColumn)
+    assert position_only_positions == [Position(10)]
+    assert positioned_velocity_entities == [positioned_velocity]
+    assert isinstance(positioned_velocity_positions, PositionColumn)
+    assert positioned_velocity_positions == [Position(20)]
+
+    with pytest.raises(ValueError):
+        world.register_column_type(Position, PositionColumn)
+
+
+def test_despawn_repairs_the_swap_moved_entity_location(
+    world: World,
+) -> None:
     first = world.spawn(Position(10))
     second = world.spawn(Position(20))
 
@@ -53,8 +77,7 @@ def test_despawn_repairs_the_swap_moved_entity_location() -> None:
         world.despawn(second)
 
 
-def test_get_and_set_component() -> None:
-    world = World()
+def test_get_and_set_component(world: World) -> None:
     entity = world.spawn(Position(10))
 
     assert world.get_component(entity, Position) == Position(10)
@@ -76,8 +99,8 @@ def test_get_and_set_component() -> None:
 
 
 def test_add_and_remove_component_migrate_between_populated_archetypes(
+    world: World,
 ) -> None:
-    world = World()
     position_only = world.spawn(Position(10))
     other_position = world.spawn(Position(20))
     positioned_velocity = world.spawn(Position(30), Velocity(40))
@@ -97,8 +120,9 @@ def test_add_and_remove_component_migrate_between_populated_archetypes(
         world.get_component(position_only, Velocity)
 
 
-def test_add_and_remove_component_validate_before_mutating() -> None:
-    world = World()
+def test_add_and_remove_component_validate_before_mutating(
+    world: World,
+) -> None:
     entity = world.spawn(Position(10))
 
     with pytest.raises(DuplicateComponent):
@@ -112,8 +136,7 @@ def test_add_and_remove_component_validate_before_mutating() -> None:
     assert world.get_component(entity, Position) == Position(10)
 
 
-def test_remove_last_component_and_add_it_back() -> None:
-    world = World()
+def test_remove_last_component_and_add_it_back(world: World) -> None:
     entity = world.spawn(Position(10))
 
     world.remove_component(entity, Position)

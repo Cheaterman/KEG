@@ -1,11 +1,19 @@
-from collections.abc import Generator, Iterator, Sequence
-from contextlib import contextmanager
+from collections.abc import Callable, Generator, Sequence
+from contextlib import AbstractContextManager
 from typing import Any, overload
 
+from .archetype import Column, MutableColumn
 from .types import Component, ComponentType, EntityId
 
 class World:
     def __init__(self) -> None:
+        ...
+
+    def register_column_type[ComponentT](
+        self,
+        component_type: type[ComponentT],
+        column_type: Callable[[], MutableColumn[ComponentT]],
+    ) -> None:
         ...
 
     def spawn(self, *components: Component) -> EntityId:
@@ -48,7 +56,7 @@ class World:
         component_type: type[ComponentT],
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
+        Column[ComponentT],
     ]]:
         ...
 
@@ -60,8 +68,8 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
+        Column[ComponentT],
+        Column[ComponentT2],
     ]]:
         ...
 
@@ -74,9 +82,9 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
     ]]:
         ...
 
@@ -90,10 +98,10 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
     ]]:
         ...
 
@@ -108,11 +116,11 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
     ]]:
         ...
 
@@ -135,12 +143,12 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
     ]]:
         ...
 
@@ -165,13 +173,13 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
     ]]:
         ...
 
@@ -198,14 +206,14 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
     ]]:
         ...
 
@@ -234,15 +242,15 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
     ]]:
         ...
 
@@ -273,16 +281,16 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
     ]]:
         ...
 
@@ -315,17 +323,17 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
-        Sequence[ComponentT11],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
+        Column[ComponentT11],
     ]]:
         ...
 
@@ -360,18 +368,18 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
-        Sequence[ComponentT11],
-        Sequence[ComponentT12],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
+        Column[ComponentT11],
+        Column[ComponentT12],
     ]]:
         ...
 
@@ -408,19 +416,19 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
-        Sequence[ComponentT11],
-        Sequence[ComponentT12],
-        Sequence[ComponentT13],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
+        Column[ComponentT11],
+        Column[ComponentT12],
+        Column[ComponentT13],
     ]]:
         ...
 
@@ -459,20 +467,20 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
-        Sequence[ComponentT11],
-        Sequence[ComponentT12],
-        Sequence[ComponentT13],
-        Sequence[ComponentT14],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
+        Column[ComponentT11],
+        Column[ComponentT12],
+        Column[ComponentT13],
+        Column[ComponentT14],
     ]]:
         ...
 
@@ -513,21 +521,21 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
-        Sequence[ComponentT11],
-        Sequence[ComponentT12],
-        Sequence[ComponentT13],
-        Sequence[ComponentT14],
-        Sequence[ComponentT15],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
+        Column[ComponentT11],
+        Column[ComponentT12],
+        Column[ComponentT13],
+        Column[ComponentT14],
+        Column[ComponentT15],
     ]]:
         ...
 
@@ -570,22 +578,22 @@ class World:
         /
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
-        Sequence[ComponentT11],
-        Sequence[ComponentT12],
-        Sequence[ComponentT13],
-        Sequence[ComponentT14],
-        Sequence[ComponentT15],
-        Sequence[ComponentT16],
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
+        Column[ComponentT11],
+        Column[ComponentT12],
+        Column[ComponentT13],
+        Column[ComponentT14],
+        Column[ComponentT15],
+        Column[ComponentT16],
     ]]:
         ...
 
@@ -629,28 +637,27 @@ class World:
         *component_types: ComponentType,
     ) -> Generator[tuple[
         Sequence[EntityId],
-        Sequence[ComponentT],
-        Sequence[ComponentT2],
-        Sequence[ComponentT3],
-        Sequence[ComponentT4],
-        Sequence[ComponentT5],
-        Sequence[ComponentT6],
-        Sequence[ComponentT7],
-        Sequence[ComponentT8],
-        Sequence[ComponentT9],
-        Sequence[ComponentT10],
-        Sequence[ComponentT11],
-        Sequence[ComponentT12],
-        Sequence[ComponentT13],
-        Sequence[ComponentT14],
-        Sequence[ComponentT15],
-        Sequence[ComponentT16],
-        *tuple[Sequence[Any], ...]
+        Column[ComponentT],
+        Column[ComponentT2],
+        Column[ComponentT3],
+        Column[ComponentT4],
+        Column[ComponentT5],
+        Column[ComponentT6],
+        Column[ComponentT7],
+        Column[ComponentT8],
+        Column[ComponentT9],
+        Column[ComponentT10],
+        Column[ComponentT11],
+        Column[ComponentT12],
+        Column[ComponentT13],
+        Column[ComponentT14],
+        Column[ComponentT15],
+        Column[ComponentT16],
+        *tuple[Column[Any], ...]
     ]]:
         ...
 
-    @contextmanager
-    def defer_structural_changes(self) -> Iterator[None]:
+    def defer_structural_changes(self) -> AbstractContextManager[None]:
         ...
 
     def flush(self) -> None:

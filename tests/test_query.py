@@ -5,8 +5,9 @@ from keg.world import World
 from tests.components import Health, Position, Velocity
 
 
-def test_query_returns_matching_archetypes_as_aligned_columns() -> None:
-    world = World()
+def test_query_returns_matching_archetypes_as_aligned_columns(
+    world: World,
+) -> None:
     position_only = world.spawn(Position(10))
     positioned_velocity = world.spawn(Position(20), Velocity(30))
     world.spawn(Velocity(40))
@@ -29,8 +30,9 @@ def test_query_returns_matching_archetypes_as_aligned_columns() -> None:
     assert positions == [Position(20)]
 
 
-def test_cached_query_plan_tracks_new_matching_archetypes() -> None:
-    world = World()
+def test_cached_query_plan_tracks_new_matching_archetypes(
+    world: World,
+) -> None:
     first = world.spawn(Position(10))
 
     assert list(world.query(Position)) == [([first], [Position(10)])]
@@ -50,9 +52,7 @@ def test_cached_query_plan_tracks_new_matching_archetypes() -> None:
     assert list(world.query(Health)) == []
 
 
-def test_query_rejects_duplicate_component_types() -> None:
-    world = World()
-
+def test_query_rejects_duplicate_component_types(world: World) -> None:
     with pytest.raises(DuplicateComponent) as caught:
         list(world.query(Position, Velocity, Position, Velocity))
 
@@ -61,8 +61,9 @@ def test_query_rejects_duplicate_component_types() -> None:
     )
 
 
-def test_closing_query_releases_it_and_flushes_pending_changes() -> None:
-    world = World()
+def test_closing_query_releases_it_and_flushes_pending_changes(
+    world: World,
+) -> None:
     first = world.spawn(Position(10))
     query = world.query(Position)
 
@@ -82,8 +83,7 @@ def test_closing_query_releases_it_and_flushes_pending_changes() -> None:
     )
 
 
-def test_pending_changes_wait_for_every_active_query() -> None:
-    world = World()
+def test_pending_changes_wait_for_every_active_query(world: World) -> None:
     first = world.spawn(Position(10))
     first_query = world.query(Position)
     second_query = world.query(Position)
@@ -106,8 +106,7 @@ def test_pending_changes_wait_for_every_active_query() -> None:
     assert world.get_component(first, Position) == Position(10)
 
 
-def test_flush_is_rejected_during_an_active_query() -> None:
-    world = World()
+def test_flush_is_rejected_during_an_active_query(world: World) -> None:
     world.spawn(Position(10))
     query = world.query(Position)
     next(query)
@@ -121,17 +120,16 @@ def test_flush_is_rejected_during_an_active_query() -> None:
     query.close()
 
 
-def test_empty_query_still_releases_its_token() -> None:
-    world = World()
-
+def test_empty_query_still_releases_its_token(world: World) -> None:
     assert list(world.query(Position)) == []
 
     entity = world.spawn(Position(10))
     assert list(world.query(Position)) == [([entity], [Position(10)])]
 
 
-def test_despawn_during_query_is_applied_when_query_closes() -> None:
-    world = World()
+def test_despawn_during_query_is_applied_when_query_closes(
+    world: World,
+) -> None:
     entity = world.spawn(Position(10))
     query = world.query(Position)
     next(query)

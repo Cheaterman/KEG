@@ -5,11 +5,17 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from .types import Component, ComponentType, EntityId
+from .archetype import Column
+from .types import ComponentType, EntityId
+
+type QueryBatch = tuple[
+    Sequence[EntityId],
+    *tuple[Column[Any], ...]
+]
 
 type QueryPlanEntry = tuple[
     Sequence[EntityId],
-    dict[ComponentType, Sequence[Component]],
+    dict[ComponentType, Column[Any]],
 ]
 
 
@@ -20,17 +26,17 @@ class QueryPlan:
 
 
 class _QueryGuardian(Protocol):
-    def _query_scope(self) -> AbstractContextManager[None]: ...
+    def __call__(self) -> AbstractContextManager[None]: ...
 
 
 @dataclass(frozen=True, slots=True)
 class Query:
     component_types: tuple[ComponentType, ...]
-    _world: _QueryGuardian
+    _query_guardian: _QueryGuardian
     _plan: QueryPlan
 
-    def __iter__(self) -> Iterator[tuple[Sequence[Any], ...]]:
-        with self._world._query_scope():
+    def __iter__(self) -> Iterator[QueryBatch]:
+        with self._query_guardian():
             for entities, components in self._plan.entries:
                 yield (
                     entities,

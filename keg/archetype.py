@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from collections.abc import Set as AbstractSet
 from dataclasses import dataclass, field
-from typing import NewType, cast
+from typing import Any, NewType, Protocol, cast
 
 from .errors import component_names
 from .types import Component, ComponentType, EntityId
@@ -36,24 +36,52 @@ class InvalidSignature(ValueError):
         self.unexpected = unexpected
 
 
-@dataclass(eq=False, slots=True)
+class Column[ColumnT](Protocol):
+    def __getitem__(self, index: int, /) -> ColumnT:
+        ...
+
+    def __iter__(self) -> Iterator[ColumnT]:
+        ...
+
+    def __len__(self) -> int:
+        ...
+
+
+class MutableColumn[ColumnT](Column[ColumnT], Protocol):
+    def __setitem__(self, index: int, value: ColumnT, /) -> None:
+        ...
+
+    def append(self, value: ColumnT, /) -> None:
+        ...
+
+    def pop(self) -> ColumnT:
+        ...
+
+
+@dataclass(eq=False, frozen=True, slots=True)
 class Archetype:
     signature: frozenset[ComponentType]
+    columns: dict[ComponentType, MutableColumn[Any]] = field(repr=False)
     entities: list[EntityId] = field(
-        default_factory=list,
-        init=False,
-        repr=False,
-    )
-    components: dict[ComponentType, list[Component]] = field(
+        default_factory=list[EntityId],
         init=False,
         repr=False,
     )
 
     def __post_init__(self) -> None:
-        self.components = {
-            component_type: []
-            for component_type in self.signature
-        }
+        column_types = self.columns.keys()
+
+        assert self.signature == column_types, (
+            'Column types do not match archetype signature: '
+            f'missing={component_names(self.signature - column_types)}, '
+            f'unexpected={component_names(column_types - self.signature)}'
+        )
+
+        for component_type, column in self.columns.items():
+            assert not column, (
+                f'Column for {component_type.__name__} is not empty at '
+                f'archetype construction: size={len(column)}'
+            )
 
     def _validate_row(self, row: RowIndex) -> None:
         max_row = len(self.entities) - 1
@@ -77,7 +105,7 @@ class Archetype:
         self.entities.append(entity)
 
         for component_type, component in components.items():
-            self.components[component_type].append(component)
+            self.columns[component_type].append(component)
 
         return row
 
@@ -91,14 +119,14 @@ class Archetype:
             moved_entity = self.entities[max_row]
             self.entities[row] = moved_entity
 
-            for component_type in self.components:
-                components_table = self.components[component_type]
-                components_table[row] = components_table[max_row]
+            for component_type in self.columns:
+                column = self.columns[component_type]
+                column[row] = column[max_row]
 
         self.entities.pop()
 
-        for component in self.components.values():
-            component.pop()
+        for column in self.columns.values():
+            column.pop()
 
         return moved_entity
 
@@ -108,18 +136,18 @@ class Archetype:
         component_type: type[ComponentT],
     ) -> ComponentT:
         self._validate_row(row)
-        assert component_type in self.components, (
+        assert component_type in self.columns, (
             f'{component_type.__name__} is not in {self!r}'
         )
-        return cast(ComponentT, self.components[component_type][row])
+        return cast(ComponentT, self.columns[component_type][row])
 
     def set_component(self, row: RowIndex, component: Component) -> None:
         self._validate_row(row)
         component_type = type(component)
-        assert component_type in self.components, (
+        assert component_type in self.columns, (
             f'{component_type.__name__} is not in {self!r}'
         )
-        self.components[component_type][row] = component
+        self.columns[component_type][row] = component
 
     def get_row(
         self,
@@ -127,12 +155,15 @@ class Archetype:
     ) -> dict[ComponentType, Component]:
         self._validate_row(row)
         return {
-            component_type: self.components[component_type][row]
-            for component_type in self.components
+            component_type: self.columns[component_type][row]
+            for component_type in self.columns
         }
 
-    def get_column(self, component_type: ComponentType) -> list[Component]:
-        assert component_type in self.components, (
+    def get_column[ComponentT](
+        self,
+        component_type: type[ComponentT],
+    ) -> Column[ComponentT]:
+        assert component_type in self.columns, (
             f'{component_type.__name__} is not in {self!r}'
         )
-        return self.components[component_type]
+        return self.columns[component_type]

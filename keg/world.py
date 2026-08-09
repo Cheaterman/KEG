@@ -1,12 +1,12 @@
 from collections import Counter
-from collections.abc import Generator, Iterator, Sequence
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Any, assert_never, cast
 
-from .archetype import Archetype, RowIndex
+from .archetype import Archetype, MutableColumn, RowIndex
 from .errors import DuplicateComponent, InvalidComponent, InvalidEntity
-from .query import Query, QueryPlan, QueryPlanEntry
+from .query import Query, QueryBatch, QueryPlan, QueryPlanEntry
 from .types import Component, ComponentType, EntityId
 
 
@@ -37,16 +37,23 @@ type _PendingEntityState = (
     | _PendingEntityChange
 )
 
+type _ColumnType[T] = Callable[[], MutableColumn[T]]
+
 
 @dataclass(eq=False, slots=True)
 class World:
     _archetypes: dict[frozenset[ComponentType], Archetype] = field(
-        default_factory=dict,
+        default_factory=dict[frozenset[ComponentType], Archetype],
+        init=False,
+        repr=False,
+    )
+    _column_types: dict[ComponentType, _ColumnType[Any]] = field(
+        default_factory=dict[ComponentType, _ColumnType[Any]],
         init=False,
         repr=False,
     )
     _entity_locations: dict[EntityId, _EntityLocation] = field(
-        default_factory=dict,
+        default_factory=dict[EntityId, _EntityLocation],
         init=False,
         repr=False,
     )
@@ -56,17 +63,17 @@ class World:
         repr=False,
     )
     _active_queries: set[object] = field(
-        default_factory=set,
+        default_factory=set[object],
         init=False,
         repr=False,
     )
     _query_plans: dict[frozenset[ComponentType], QueryPlan] = field(
-        default_factory=dict,
+        default_factory=dict[frozenset[ComponentType], QueryPlan],
         init=False,
         repr=False,
     )
     _pending_entities: dict[EntityId, _PendingEntityState] = field(
-        default_factory=dict,
+        default_factory=dict[EntityId, _PendingEntityState],
         init=False,
         repr=False,
     )
@@ -83,7 +90,16 @@ class World:
         archetype = self._archetypes.get(component_types)
 
         if not archetype:
-            archetype = Archetype(component_types)
+            archetype = Archetype(
+                component_types,
+                {
+                    component_type: self._column_types.setdefault(
+                        component_type,
+                        list,
+                    )()
+                    for component_type in component_types
+                }
+            )
             self._archetypes[component_types] = archetype
             get_column = archetype.get_column
 
@@ -144,7 +160,7 @@ class World:
         return query_plan
 
     @contextmanager
-    def _query_scope(self) -> Iterator[None]:
+    def _query_scope(self) -> Generator[None]:
         token = object()
         self._active_queries.add(token)
 
@@ -159,6 +175,16 @@ class World:
             return
 
         self.flush()
+
+    def register_column_type[ComponentT](
+        self,
+        component_type: type[ComponentT],
+        column_type: _ColumnType[ComponentT],
+    ) -> None:
+        if component_type in self._column_types:
+            raise ValueError()
+
+        self._column_types[component_type] = column_type
 
     def spawn(self, *components: Component) -> EntityId:
         components_by_type = {
@@ -357,11 +383,7 @@ class World:
         self,
         component_type: ComponentType,
         *component_types: ComponentType,
-    ) -> Generator[
-        tuple[Sequence[Any], ...],
-        None,
-        None,
-    ]:
+    ) -> Generator[QueryBatch, None, None]:
         component_types = (component_type, *component_types)
         signature = frozenset(component_types)
 
@@ -374,11 +396,11 @@ class World:
             raise DuplicateComponent(duplicate_components)
 
         query_plan = self._get_query_plan(signature)
-        query = Query(component_types, self, query_plan)
+        query = Query(component_types, self._query_scope, query_plan)
         yield from query
 
     @contextmanager
-    def defer_structural_changes(self) -> Iterator[None]:
+    def defer_structural_changes(self) -> Generator[None]:
         self._open_deferrals += 1
 
         try:
@@ -412,7 +434,7 @@ class World:
 
                     if signature == archetype.signature:
                         row = location.row
-                        columns = archetype.components
+                        columns = archetype.columns
 
                         for component_type, component in components.items():
                             columns[component_type][row] = component

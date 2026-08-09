@@ -5,9 +5,7 @@ from keg.world import World
 from tests.components import Health, Name, Position, Velocity
 
 
-def test_pending_spawn_supports_component_changes() -> None:
-    world = World()
-
+def test_pending_spawn_supports_component_changes(world: World) -> None:
     with world.defer_structural_changes():
         entity = world.spawn(Position(10))
         assert world.get_component(entity, Position) == Position(10)
@@ -34,9 +32,7 @@ def test_pending_spawn_supports_component_changes() -> None:
     assert list(world.query(Position)) == [([entity], [Position(20)])]
 
 
-def test_spawn_then_despawn_cancels_the_entity() -> None:
-    world = World()
-
+def test_spawn_then_despawn_cancels_the_entity(world: World) -> None:
     with world.defer_structural_changes():
         entity = world.spawn(Position(10))
         world.despawn(entity)
@@ -50,8 +46,9 @@ def test_spawn_then_despawn_cancels_the_entity() -> None:
     assert list(world.query(Position)) == []
 
 
-def test_pending_change_can_return_to_the_original_signature() -> None:
-    world = World()
+def test_pending_change_can_return_to_the_original_signature(
+    world: World,
+) -> None:
     entity = world.spawn(Position(10))
 
     with world.defer_structural_changes():
@@ -63,8 +60,9 @@ def test_pending_change_can_return_to_the_original_signature() -> None:
     assert list(world.query(Velocity)) == []
 
 
-def test_remove_then_add_resynchronizes_the_existing_column() -> None:
-    world = World()
+def test_remove_then_add_resynchronizes_the_existing_column(
+    world: World,
+) -> None:
     entity = world.spawn(Position(10))
 
     with world.defer_structural_changes():
@@ -74,8 +72,9 @@ def test_remove_then_add_resynchronizes_the_existing_column() -> None:
     assert world.get_component(entity, Position) == Position(20)
 
 
-def test_pending_change_migrates_when_signature_remains_changed() -> None:
-    world = World()
+def test_pending_change_migrates_when_signature_remains_changed(
+    world: World,
+) -> None:
     entity = world.spawn(Position(10))
 
     with world.defer_structural_changes():
@@ -85,8 +84,7 @@ def test_pending_change_migrates_when_signature_remains_changed() -> None:
     assert world.get_component(entity, Velocity) == Velocity(20)
 
 
-def test_pending_change_validates_before_mutating() -> None:
-    world = World()
+def test_pending_change_validates_before_mutating(world: World) -> None:
     entity = world.spawn(Position(10))
 
     with world.defer_structural_changes():
@@ -102,8 +100,7 @@ def test_pending_change_validates_before_mutating() -> None:
         assert world.get_component(entity, Velocity) == Velocity(20)
 
 
-def test_pending_despawn_rejects_further_operations() -> None:
-    world = World()
+def test_pending_despawn_rejects_further_operations(world: World) -> None:
     entity = world.spawn(Position(10))
 
     with world.defer_structural_changes():
@@ -125,8 +122,7 @@ def test_pending_despawn_rejects_further_operations() -> None:
             world.despawn(entity)
 
 
-def test_despawn_discards_an_existing_pending_change() -> None:
-    world = World()
+def test_despawn_discards_an_existing_pending_change(world: World) -> None:
     entity = world.spawn(Position(10))
 
     with world.defer_structural_changes():
@@ -137,9 +133,7 @@ def test_despawn_discards_an_existing_pending_change() -> None:
         world.get_component(entity, Position)
 
 
-def test_manual_flush_is_allowed_inside_a_deferral() -> None:
-    world = World()
-
+def test_manual_flush_is_allowed_inside_a_deferral(world: World) -> None:
     with world.defer_structural_changes():
         entity = world.spawn(Position(10))
         world.flush()
@@ -149,9 +143,9 @@ def test_manual_flush_is_allowed_inside_a_deferral() -> None:
         ]
 
 
-def test_nested_deferrals_flush_only_after_the_outer_context() -> None:
-    world = World()
-
+def test_nested_deferrals_flush_only_after_the_outer_context(
+    world: World,
+) -> None:
     with world.defer_structural_changes():
         with world.defer_structural_changes():
             entity = world.spawn(Position(10))
@@ -161,8 +155,7 @@ def test_nested_deferrals_flush_only_after_the_outer_context() -> None:
     assert list(world.query(Position)) == [([entity], [Position(10)])]
 
 
-def test_deferral_flushes_when_the_context_body_raises() -> None:
-    world = World()
+def test_deferral_flushes_when_the_context_body_raises(world: World) -> None:
     entity = None
 
     with (
