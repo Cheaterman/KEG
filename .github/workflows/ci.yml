@@ -32,17 +32,25 @@ jobs:
       - name: Install check dependencies
         run: pip install mypy pyright pytest pytest-cov ruff
 
+      - name: Run Ruff
+        run: ruff check keg tests examples
+
       - name: Run tests
         run: pytest
-
-      - name: Run mypy
-        run: mypy
 
       - name: Run Pyright
         run: pyright
 
-      - name: Run Ruff
-        run: ruff check keg tests examples
+      - name: Run stubtest
+        run: >
+          python -m mypy.stubtest
+          --concise
+          --allowlist stubtest_allowlist.txt
+          --ignore-unused-allowlist
+          keg.world
+
+      - name: Run mypy
+        run: mypy
 
   package:
     name: Build package
