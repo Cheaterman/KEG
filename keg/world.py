@@ -101,16 +101,12 @@ class World:
                 }
             )
             self._archetypes[component_types] = archetype
-            get_column = archetype.get_column
 
             for signature, query_plan in self._query_plans.items():
                 if signature <= component_types:
                     query_plan.entries.append((
                         archetype.entities,
-                        {
-                            component_type: get_column(component_type)
-                            for component_type in signature
-                        },
+                        archetype.columns,
                     ))
 
         return archetype
@@ -145,14 +141,7 @@ class World:
 
             for archetype in self._archetypes.values():
                 if signature <= archetype.signature:
-                    get_column = archetype.get_column
-                    entries.append((
-                        archetype.entities,
-                        {
-                            component_type: get_column(component_type)
-                            for component_type in signature
-                        },
-                    ))
+                    entries.append((archetype.entities, archetype.columns))
 
             query_plan = QueryPlan(signature, entries)
             self._query_plans[signature] = query_plan

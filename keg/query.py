@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from typing import Any, Protocol
@@ -15,7 +15,7 @@ type QueryBatch = tuple[
 
 type QueryPlanEntry = tuple[
     Sequence[EntityId],
-    dict[ComponentType, Column[Any]],
+    Mapping[ComponentType, Column[Any]],
 ]
 
 
