@@ -77,6 +77,15 @@ def test_despawn_repairs_the_swap_moved_entity_location(
         world.despawn(second)
 
 
+def test_invalid_despawn_does_not_leave_pending_state(world: World) -> None:
+    invalid_entity = EntityId(999)
+
+    with pytest.raises(InvalidEntity):
+        world.despawn(invalid_entity)
+
+    assert world.spawn() == EntityId(1)
+
+
 def test_get_and_set_component(world: World) -> None:
     entity = world.spawn(Position(10))
 

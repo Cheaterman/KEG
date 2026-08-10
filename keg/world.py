@@ -217,7 +217,11 @@ class World:
         pending_entity = self._pending_entities.get(entity)
 
         match pending_entity:
-            case None | _PendingEntityChange():
+            case None:
+                self._get_location(entity)
+                new_pending_entity = _PendingEntityDespawn(existing=True)
+
+            case _PendingEntityChange():
                 new_pending_entity = _PendingEntityDespawn(existing=True)
 
             case _PendingEntitySpawn():
